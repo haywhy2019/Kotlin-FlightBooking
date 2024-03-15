@@ -16,6 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.example.flightbooking.navigation.FlightNavigation
 import com.example.flightbooking.screens.SplashScreen
 import com.example.flightbooking.ui.theme.FlightBookingTheme
 
@@ -31,7 +32,8 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 //                    Greeting("Android")
-                   SplashScreen()
+//                   SplashScreen()
+                    FlightNavigation()
                 }
             }
         }
