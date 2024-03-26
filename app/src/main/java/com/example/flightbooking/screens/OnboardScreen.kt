@@ -66,6 +66,7 @@ fun OnBoardScreen(navController: NavController){
                 .fillMaxWidth(1F)
                 .background(PrimaryColor2, shape = RoundedCornerShape(topStartPercent = 70))
                 .height(80.dp)
+                .clickable { navController.navigate(FlightScreens.LoginScreen.name) }
                 ,
                 contentAlignment = Alignment.Center
             ){
