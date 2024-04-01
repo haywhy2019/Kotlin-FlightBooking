@@ -18,49 +18,61 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 var inputStyle: Modifier = Modifier.fillMaxWidth()
-@Composable
-fun CustomInput(text: String,
-                onTextChange: (String) -> Unit,
-                modifier: Modifier = Modifier,
-                label: String,
-                maxLines: Int = 1,
-                placeHolder: String = "",
-                icon: ImageVector = Icons.Default.Email,
 
-                ){
+@Composable
+fun CustomInput(
+    text: String,
+    onTextChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String,
+    maxLines: Int = 1,
+    placeHolder: String = "",
+    showIcon: Boolean = true,
+    icon: ImageVector = Icons.Default.Email,
+    textColor: Color = Color.White
+
+    ) {
 
     TextField(
         value = text,
         onValueChange = onTextChange,
-        modifier=modifier.fillMaxWidth().padding(
-            horizontal = 20.dp,
-            vertical = 20.dp
-        ),
-//        label = {Text(text=label)},
-        maxLines=maxLines,
-        placeholder= {Text(text=placeHolder,
-            style= MaterialTheme.typography.labelLarge
-                .copy(
-                    color = Color.White
-                )
-            )},
-        leadingIcon = {
-            Icon(imageVector = icon, contentDescription = "",
-            tint = Color.White
-        )
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = 20.dp,
+                vertical = 20.dp
+            ),
+        label = {Text(text=label)},
+        maxLines = maxLines,
+        placeholder = {
+            Text(
+                text = placeHolder,
+                style = MaterialTheme.typography.labelLarge
+                    .copy(
+                        color = Color.White
+                    )
+            )
         },
-        colors =  TextFieldDefaults.colors(
-            focusedTextColor = Color.Black,
-            unfocusedTextColor = Color.White,
-            unfocusedContainerColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.White,
-            unfocusedPlaceholderColor = Color.White
+        leadingIcon = {
+            if (showIcon) {
 
+                Icon(
+                    imageVector = icon, contentDescription = "",
+                    tint = Color.White
+                )
+            }
+        },
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = textColor,
+            unfocusedContainerColor = Color.Transparent,
+            unfocusedIndicatorColor = textColor,
+            unfocusedPlaceholderColor = textColor
 
         ),
 
 
-    )
+        )
 
 }
 

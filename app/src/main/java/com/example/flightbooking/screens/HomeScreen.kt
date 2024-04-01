@@ -267,7 +267,7 @@ Row(
                     modifier = Modifier.fillMaxWidth()
                         .padding(vertical = 40.dp)
                 ){
-                    CustomButton(onClick = { /*TODO*/ }, text = "Continue for hotels")
+                    CustomButton(onClick = { navController.navigate(FlightScreens.LoginScreen.name) }, text = "Continue for hotels")
                 }
                 //// here
             }
