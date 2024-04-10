@@ -8,15 +8,15 @@ import com.example.flightbooking.screens.BookingScreen
 import com.example.flightbooking.screens.CheckoutScreen
 import com.example.flightbooking.screens.HomeScreen
 import com.example.flightbooking.screens.HotelScreen
-import com.example.flightbooking.screens.LoginScreen
+import com.example.flightbooking.screens.authScreens.LoginScreen
 import com.example.flightbooking.screens.OnBoardScreen
-import com.example.flightbooking.screens.SignUpScreen
+import com.example.flightbooking.screens.authScreens.SignUpScreen
 
 @Composable
 fun FlightNavigation(){
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = FlightScreens.CheckoutScreen.name) {
+    NavHost(navController = navController, startDestination = FlightScreens.OnboardScreen.name) {
         composable(FlightScreens.BookingScreen.name) { BookingScreen() }
         composable(FlightScreens.HomeScreen.name) { HomeScreen(navController) }
         composable(FlightScreens.OnboardScreen.name) { OnBoardScreen(navController) }

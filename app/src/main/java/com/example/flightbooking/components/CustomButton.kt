@@ -46,7 +46,7 @@ fun CustomButton(
 
             ),
             border = if(outline)  BorderStroke(width = 2.dp, color = outlineBrColor) else null,
-            modifier = modifier.fillMaxWidth(0.8F)
+            modifier = modifier.fillMaxWidth()
                 .height(50.dp)
             ,
             shape= RoundedCornerShape(10.dp),

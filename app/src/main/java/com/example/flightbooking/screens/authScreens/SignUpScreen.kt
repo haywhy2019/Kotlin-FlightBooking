@@ -1,28 +1,20 @@
-package com.example.flightbooking.screens
+package com.example.flightbooking.screens.authScreens
 
-import androidx.compose.foundation.Canvas
+import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,32 +23,57 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.paint
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import com.example.flightbooking.R
 import com.example.flightbooking.components.CustomButton
 import com.example.flightbooking.components.CustomInput
+import com.example.flightbooking.navigation.FlightScreens
 import com.example.flightbooking.ui.theme.PrimaryColor
-import com.example.flightbooking.ui.theme.PrimaryColor2
 
 @Composable
-fun SignUpScreen(navController: NavController) {
+fun SignUpScreen(navController: NavController,
+                 viewModel: LoginScreenViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+                 ) {
     val state = rememberScrollState()
     LaunchedEffect(Unit) { state.animateScrollTo(100) }
     var email by remember {
         mutableStateOf("")
     }
+
+    var password by remember {
+        mutableStateOf("")
+    }
+
+    var confirmPassword by remember {
+        mutableStateOf("")
+    }
+
+    var name by remember {
+        mutableStateOf("")
+    }
+
+    var phoneNumber by remember {
+        mutableStateOf("")
+    }
+
+
+    var showPassword by remember {
+        mutableStateOf(false)
+    }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    fun isValidInput (): Boolean {
+        return (email.trim().isNotEmpty() && name.trim().isNotEmpty() && phoneNumber.trim().isNotEmpty()
+                && password.trim().isNotEmpty())
+    }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -90,48 +107,46 @@ fun SignUpScreen(navController: NavController) {
             )
 
             CustomInput(
-                text = email,
-                onTextChange = { if (email.isNotEmpty()) email = it },
+                text = name,
+                onTextChange = { name = it },
                 label = "Name",
-                placeHolder = "Name"
+//                placeHolder = "Name"
             )
 
             CustomInput(
                 text = email,
-                onTextChange = { if (email.isNotEmpty()) email = it },
+                onTextChange = { email = it },
                 label = "Email",
-                placeHolder = "Email"
+//                placeHolder = "Email"
             )
 
 
             CustomInput(
-                text = email,
-                onTextChange = { if (email.isNotEmpty()) email = it },
+                text = phoneNumber,
+                onTextChange = {phoneNumber = it },
                 label = "Phone number",
-                placeHolder = "Phone Number"
+//                placeHolder = "Phone Number"
             )
 
 
             CustomInput(
-                text = email,
-                onTextChange = { if (email.isNotEmpty()) email = it },
+                text = password,
+                onTextChange = { password = it },
                 label = "Password",
-                placeHolder = "Password"
-            )
-
-
-            CustomInput(
-                text = email,
-                onTextChange = { if (email.isNotEmpty()) email = it },
-                label = "Confirm Password",
-                placeHolder = "Confirm Password"
+                iconOnClick = { showPassword = !showPassword },
+                inputType = if(showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+//                placeHolder = "Password"
+                        icon = Icons.Filled.RemoveRedEye
             )
 
             CustomInput(
-                text = email,
-                onTextChange = { if (email.isNotEmpty()) email = it },
+                text = confirmPassword,
+                onTextChange = { confirmPassword = it },
                 label = "Confirm Password",
-                placeHolder = "Confirm Password"
+//                placeHolder = "Confirm Password",
+                icon = Icons.Filled.RemoveRedEye,
+                iconOnClick = { showPassword = !showPassword },
+                inputType = if(showPassword) VisualTransformation.None else PasswordVisualTransformation()
 
             )
 
@@ -146,13 +161,28 @@ fun SignUpScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
 
         ) {
-            CustomButton(onClick = { /*TODO*/ },
+            CustomButton(onClick = {
+                                   /*TODO*/
+                                keyboardController?.hide()
+
+                Log.d("test", "${email}, ${password},${confirmPassword}," +
+                        phoneNumber)
+//
+             viewModel.createUserWithEmailAndPassword(email,password,name,phoneNumber){
+
+                 navController.navigate(FlightScreens.HomeScreen.name)
+             }
+                                   },
                 text = "Create Account",
                 outline = true
             )
             Text(text="Already have an account ? Sign in",
                 style=MaterialTheme.typography.labelMedium.copy(
-                    color = Color.Gray
+                    color = Color.Gray,
+                    textDecoration = TextDecoration.Underline
+                ),
+                modifier = Modifier.clickable(
+                    onClick = {navController.navigate(FlightScreens.LoginScreen.name)}
                 )
                 )
         }

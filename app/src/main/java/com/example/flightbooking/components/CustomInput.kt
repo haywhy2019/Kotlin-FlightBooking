@@ -1,6 +1,7 @@
 package com.example.flightbooking.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -15,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 var inputStyle: Modifier = Modifier.fillMaxWidth()
@@ -29,7 +32,9 @@ fun CustomInput(
     placeHolder: String = "",
     showIcon: Boolean = true,
     icon: ImageVector = Icons.Default.Email,
-    textColor: Color = Color.White
+    iconOnClick: () -> Unit = {},
+    textColor: Color = Color.White,
+    inputType: VisualTransformation = VisualTransformation.None
 
     ) {
 
@@ -58,7 +63,8 @@ fun CustomInput(
 
                 Icon(
                     imageVector = icon, contentDescription = "",
-                    tint = Color.White
+                    tint = Color.White,
+                    modifier = Modifier.clickable(onClick = iconOnClick)
                 )
             }
         },
@@ -67,10 +73,11 @@ fun CustomInput(
             unfocusedTextColor = textColor,
             unfocusedContainerColor = Color.Transparent,
             unfocusedIndicatorColor = textColor,
-            unfocusedPlaceholderColor = textColor
+            unfocusedPlaceholderColor = textColor,
+            unfocusedLabelColor = textColor
 
         ),
-
+visualTransformation = inputType
 
         )
 
