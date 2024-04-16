@@ -114,9 +114,11 @@ fun LoginScreen(
                     Log.d("login loading", isLoading.toString())
 
 
-                    viewModel.signInWithEmailAndPassword(email, password) {
-                        navController.navigate(FlightScreens.HomeScreen.name)
-                    }
+//                    viewModel.signInWithEmailAndPassword(email, password) {
+//                        navController.navigate(FlightScreens.HomeScreen.name)
+//                    }
+
+                    navController.navigate(FlightScreens.HomeScreen.name)
                 },
                 text = "Login",
                 color = Color.White,

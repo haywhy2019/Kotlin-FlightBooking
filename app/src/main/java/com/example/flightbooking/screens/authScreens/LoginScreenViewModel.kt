@@ -23,23 +23,16 @@ class LoginScreenViewModel : ViewModel() {
 
     fun signInWithEmailAndPassword(email: String, password: String, home: () -> Unit) =
         viewModelScope.launch {
-            try {
+
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            Log.d("FB", "signin good : ${task.result.toString()}")
-
+                            Log.d("FB", "signin good : ${task.result}")
                             home()
-                        } else {
-                            Log.d("FB", "signin : ${task.result.toString()}")
                         }
+            }.addOnFailureListener {
+                result ->   Log.d("FB", "signin good : ${result.message}")
                     }
-                    .addOnFailureListener{
-                            task -> Log.d("fail", task.message.toString())
-                    }
-            } catch (ex: Exception) {
-                Log.d("FB", "signinwithemain: ${ex.message}")
-            }
         }
 
     fun createUserWithEmailAndPassword(
@@ -52,25 +45,18 @@ class LoginScreenViewModel : ViewModel() {
     ) = viewModelScope.launch {
       if(_loading.value == false){
           _loading.value = true
-          try {
+
               auth.createUserWithEmailAndPassword(email, password)
                   .addOnCompleteListener {
                           task ->
                       if(task.isSuccessful){
-//                          val displayName = task.result.user.email
                        createUser(name,phoneNumber,email)
                           home()
-                      }else {
-                          Log.d("FB", "crete user: ${task.result.toString()}")
                       }
                       _loading.value = false
                   }.addOnFailureListener{
-                      task -> Log.d("fail", task.message.toString())
+                      task -> Log.d("fail", "${task.message}")
                   }
-          }catch (ex: Exception){
-              _loading.value = false
-              Log.d("FB", "create with emain: ${ex.message}")
-          }
 
       }
     }
