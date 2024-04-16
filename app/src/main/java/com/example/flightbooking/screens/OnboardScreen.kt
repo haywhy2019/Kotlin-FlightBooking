@@ -1,6 +1,7 @@
 package com.example.flightbooking.screens
 
 import android.os.Debug
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,9 +28,14 @@ import androidx.navigation.NavController
 import com.example.flightbooking.R
 import com.example.flightbooking.navigation.FlightScreens
 import com.example.flightbooking.ui.theme.PrimaryColor2
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun OnBoardScreen(navController: NavController){
+//    if(FirebaseAuth.getInstance().currentUser?.email?.isNotEmpty() == true){
+//        navController.navigate(FlightScreens.HomeScreen.name)
+//      Log.d("loggedUser", FirebaseAuth.getInstance().currentUser?.email.toString())
+//    }
     Column(verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.background(color = Color.White)
        ) {

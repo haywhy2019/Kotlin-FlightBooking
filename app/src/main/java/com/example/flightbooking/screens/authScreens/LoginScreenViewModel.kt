@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flightbooking.model.MUser
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.auth
@@ -24,15 +25,15 @@ class LoginScreenViewModel : ViewModel() {
     fun signInWithEmailAndPassword(email: String, password: String, home: () -> Unit) =
         viewModelScope.launch {
 
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Log.d("FB", "signin good : ${task.result}")
-                            home()
-                        }
-            }.addOnFailureListener {
-                result ->   Log.d("FB", "signin good : ${result.message}")
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("FB", "signin good : ${task.result}")
+                        home()
                     }
+                }.addOnFailureListener { result ->
+                    Log.d("FB", "signin bad : ${result.message}")
+                }
         }
 
     fun createUserWithEmailAndPassword(
@@ -42,33 +43,32 @@ class LoginScreenViewModel : ViewModel() {
         phoneNumber: String,
         home: () -> Unit,
 
-    ) = viewModelScope.launch {
-      if(_loading.value == false){
-          _loading.value = true
+        ) = viewModelScope.launch {
+        if (_loading.value == false) {
+            _loading.value = true
 
-              auth.createUserWithEmailAndPassword(email, password)
-                  .addOnCompleteListener {
-                          task ->
-                      if(task.isSuccessful){
-                       createUser(name,phoneNumber,email)
-                          home()
-                      }
-                      _loading.value = false
-                  }.addOnFailureListener{
-                      task -> Log.d("fail", "${task.message}")
-                  }
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        createUser(name, phoneNumber, email)
+                        home()
+                    }
+                    _loading.value = false
+                }.addOnFailureListener { task ->
+                    Log.d("fail", "${task.message}")
+                }
 
-      }
+        }
     }
 
-    private fun createUser(name: String, phoneNumber: String, email: String){
-        val userId =  auth.currentUser?.uid
-        val user = mutableMapOf<String, Any>()
-        user["user_id"] = userId.toString()
-        user["name"] = name
-        user["phoneNumber"] = phoneNumber
-        user["email"] = email
-
+    private fun createUser(name: String, phoneNumber: String, email: String) {
+        val userId = auth.currentUser?.uid
+        val user = MUser(
+            userId = userId.toString(),
+            name = name,
+            phoneNumber = phoneNumber,
+            email = email
+        ).toMap()
 
         FirebaseFirestore.getInstance()
             .collection("user")

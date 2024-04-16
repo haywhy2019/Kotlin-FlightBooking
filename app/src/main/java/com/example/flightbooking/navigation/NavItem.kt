@@ -1,11 +1,17 @@
 package com.example.flightbooking.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AirplaneTicket
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.AirplaneTicket
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.ManageAccounts
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -17,22 +23,22 @@ data class NavItem(val title: String,
 
 val listOfNavItems : List<NavItem> = listOf(
     NavItem(
-        title = "Explore",
-        selectedIcon = Icons.Filled.Search,
-        unselectedIcon = Icons.Outlined.Search,
-//        route = Screens.ExploreScreen.name
-    ),
-    NavItem(
-        title = "Dashboard",
+        title = "Home",
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home,
-//        route = Screens.DashboardScreen.name
+        route = FlightScreens.HomeScreen.name
     ),
     NavItem(
-        title = "Wishlist",
-        selectedIcon = Icons.Filled.Favorite,
-        unselectedIcon = Icons.Outlined.Favorite,
-//        route = Screens.WishlistScreen.name
+        title = "Profile",
+        selectedIcon = Icons.Default.AccountCircle,
+        unselectedIcon = Icons.Outlined.AccountCircle,
+        route = FlightScreens.BookingScreen.name
+    ),
+    NavItem(
+        title = "Tickets",
+        selectedIcon = Icons.Filled.AirplaneTicket,
+        unselectedIcon = Icons.Outlined.AirplaneTicket,
+        route = FlightScreens.DetailScreen.name
     ),
 //    NavItem(
 //        title = "Profile",

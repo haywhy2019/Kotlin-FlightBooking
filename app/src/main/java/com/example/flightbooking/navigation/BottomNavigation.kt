@@ -25,7 +25,6 @@ fun BottomNavigation(){
 
         listOfNavItems.forEachIndexed { index, item ->
             NavigationBarItem(
-
                 label = { Text(item.title) },
                 selected = currentDestination?.hierarchy?.any{ it.route == item.route } == true,
                 icon = {
