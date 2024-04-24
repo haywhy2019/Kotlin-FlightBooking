@@ -2,6 +2,7 @@ package com.example.flightbooking.screens.HomeScreen
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,16 +18,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
@@ -44,8 +49,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -54,10 +62,17 @@ import com.example.flightbooking.R
 import com.example.flightbooking.components.CustomButton
 import com.example.flightbooking.components.FlightDate
 import com.example.flightbooking.components.FlightLocation
+import com.example.flightbooking.model.Airline
+import com.example.flightbooking.model.Arrival
+import com.example.flightbooking.model.Codeshared
+import com.example.flightbooking.model.Data
+import com.example.flightbooking.model.Departure
+import com.example.flightbooking.model.Flight
 import com.example.flightbooking.navigation.BottomNavigation
 import com.example.flightbooking.navigation.FlightScreens
 import com.example.flightbooking.ui.theme.PrimaryColor
 import com.example.flightbooking.utils.DateUtils
+import com.example.flightbooking.utils.test
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("ResourceAsColor")
@@ -75,14 +90,24 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
     val showDateDialog2 = remember { mutableStateOf(false) }
 
-
+val localContest = LocalContext.current
     val dateState = rememberDatePickerState()
     val dateState2 = rememberDatePickerState()
     val deptDate = remember { mutableStateOf("pick date") }
     val arrivDate = remember { mutableStateOf("pick date") }
 
+    val destination = remember { mutableStateOf("Choose take off") }
+    val destinationCode = remember { mutableStateOf( "DEPT") }
+
+    val arrival = remember { mutableStateOf("Choose Arrival location    ") }
+    val arrivalCode = remember { mutableStateOf("ARV") }
 
 
+    val flightList:List<Data> = if(viewModel.listOfFlights.value.data != null) {
+        viewModel.listOfFlights.value.data!!
+    } else {
+        test
+    }
 
 
 
@@ -259,14 +284,14 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    FlightLocation(countryAb = "LON", country = "London, United kingdom") {
+                    FlightLocation(countryAb = destinationCode.value, country = destination.value ) {
                         showDialog.value = true
                     }
                     Icon(
                         painter = painterResource(id = R.drawable.destarrow),
                         contentDescription = ""
                     )
-                    FlightLocation("LOS", "Lagos, Nigeria") {
+                    FlightLocation(arrivalCode.value, arrival.value) {
                         showDialog.value = true
                     }
                 }
@@ -349,17 +374,43 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         .fillMaxWidth()
                         .padding(vertical = 40.dp)
                 ) {
+                    if(viewModel.isLoading) {
+                        LinearProgressIndicator()
+                    }else{
                     CustomButton(
-                        onClick = { navController.navigate(FlightScreens.LoginScreen.name) },
+                        onClick = {
+                            viewModel.createTicket(arrival.value,
+                            arrivDate.value,
+                            destination.value,
+                            deptDate.value,
+                            )
+                              arrival.value = "ARV"
+                            destination.value = "DST"
+                            arrivDate.value = ""
+                            deptDate.value = ""
+
+                                  },
                         text = "Continue"
                     )
                 }
-                //// here
+                }
+
             }
 
+Toast.makeText(localContest, viewModel.message, Toast.LENGTH_SHORT).show()
+            MinimalDialog(onDismissRequest = { showDialog.value = false }, showDialog.value, flightList) {it ->
+                run {
+                    arrival.value = it.airport
+                    arrivalCode.value = it.iata
+                }
+            }
+            MinimalDialog(onDismissRequest = { showDialog.value = false }, showDialog.value, flightList) {it ->
+                run {
+                    destination.value = it.airport
+                    destinationCode.value = it.iata
 
-            MinimalDialog(onDismissRequest = { showDialog.value = false }, showDialog.value)
-
+                }
+            }
             DatePickerWithDialog(modifier = Modifier,showDateDialog, dateState) { deptDate.value = it }
             DatePickerWithDialog(modifier = Modifier,showDateDialog2,dateState2) { arrivDate.value = it }
         }
@@ -371,7 +422,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
 
 
 @Composable
-fun MinimalDialog(onDismissRequest: () -> Unit, showDialog: Boolean) {
+fun MinimalDialog(onDismissRequest: () -> Unit, showDialog: Boolean, list: List<Data>,onPress: (Arrival) -> Unit) {
     if (showDialog) {
         Dialog(
             onDismissRequest = { onDismissRequest() },
@@ -380,23 +431,17 @@ fun MinimalDialog(onDismissRequest: () -> Unit, showDialog: Boolean) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(500.dp)
+                    .fillMaxHeight()
                     .padding(5.dp),
                 shape = RoundedCornerShape(16.dp),
             ) {
-//                Text(
-//                    text = "This is a minimal dialog",
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .wrapContentSize(Alignment.Center)
-//                        .clickable { },
-//                    textAlign = TextAlign.Center,
-//                )
                 LazyColumn {
                     // Add 5 items
-                    items(5) { index ->
-                        Text(text = "Item: $index")
+                    items(list) { data ->
+//                        Text(data.arrival.airport)
+                        ListCard(flight = data, onDismissRequest) { onPress(data.arrival) }
                     }
+
 
 
                 }
@@ -463,3 +508,55 @@ fun DatePickerWithDialog(
         }
     }
 }
+
+@Composable
+fun ListCard(flight: Data = Data(
+    arrival = Arrival(
+        "Wallis Island",
+        "WLS",
+    ),
+    departure = Departure(
+        "Nadi International",
+        "NAN"
+    ),
+    flight_date = "2024-04-21",
+    flight_status = "scheduled"
+    ), onDismissRequest: () -> Unit = {}, onPress: (Arrival) -> Unit = {}) {
+   Card(shape = RoundedCornerShape(5.dp),
+       elevation = CardDefaults.elevatedCardElevation(
+           defaultElevation = 5.dp
+       ),
+       modifier = Modifier
+           .padding(5.dp)
+           .height(100.dp)
+           .fillMaxWidth()
+           .clickable {
+               onDismissRequest()
+               onPress(flight.arrival)
+
+
+           }
+       ) {
+
+       Column(
+           verticalArrangement = Arrangement.Center,
+           modifier = Modifier.padding(top = 15.dp)
+       ) {
+           Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround){
+               Text("Airport:", style=MaterialTheme.typography.labelMedium)
+               Text(text = flight.arrival.airport, style=MaterialTheme.typography.labelLarge.copy(
+                   color = PrimaryColor,
+                   fontWeight = FontWeight.Bold
+               ))
+           }
+
+           Row(modifier = Modifier.fillMaxWidth(),
+               horizontalArrangement = Arrangement.SpaceAround){
+               Text(text = "Code:")
+               Text(flight.arrival.iata)
+           }
+
+       }
+   }
+}
+
