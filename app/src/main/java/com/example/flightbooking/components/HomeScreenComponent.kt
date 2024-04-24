@@ -2,6 +2,7 @@ package com.example.flightbooking.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
@@ -22,11 +23,11 @@ import androidx.compose.ui.unit.dp
 import com.example.flightbooking.ui.theme.PrimaryColor
 
 @Composable
-fun FlightLocation(countryAb: String, country: String) {
+fun FlightLocation(countryAb: String, country: String, onClick: () -> Unit) {
     Column(
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable{onClick()}
     ) {
         Text(
             text = countryAb, style = MaterialTheme.typography.titleLarge

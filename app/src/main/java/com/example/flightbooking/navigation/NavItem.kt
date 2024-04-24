@@ -38,7 +38,7 @@ val listOfNavItems : List<NavItem> = listOf(
         title = "Tickets",
         selectedIcon = Icons.Filled.AirplaneTicket,
         unselectedIcon = Icons.Outlined.AirplaneTicket,
-        route = FlightScreens.DetailScreen.name
+        route = FlightScreens.TicketScreen.name
     ),
 //    NavItem(
 //        title = "Profile",

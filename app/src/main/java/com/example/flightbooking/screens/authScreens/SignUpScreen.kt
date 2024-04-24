@@ -1,6 +1,7 @@
 package com.example.flightbooking.screens.authScreens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -66,6 +69,12 @@ fun SignUpScreen(navController: NavController,
     var showPassword by remember {
         mutableStateOf(false)
     }
+
+    var contest = LocalContext.current
+
+    val isLoading = viewModel.isLoading
+
+    val loginErr = viewModel.loginErr
 
     val keyboardController = LocalSoftwareKeyboardController.current
     fun isValidInput (): Boolean {
@@ -161,21 +170,34 @@ fun SignUpScreen(navController: NavController,
             horizontalAlignment = Alignment.CenterHorizontally
 
         ) {
+
+            if(isLoading) {
+                LinearProgressIndicator()
+            }else {
             CustomButton(onClick = {
                                    /*TODO*/
                                 keyboardController?.hide()
 
                 Log.d("test", "${email}, ${password},${confirmPassword}," +
                         phoneNumber)
-//
-             viewModel.createUserWithEmailAndPassword(email,password,name,phoneNumber){
+if(email.isEmpty() or password.isEmpty() or name.isEmpty() or phoneNumber.isEmpty()
+    or confirmPassword.isEmpty()) {
+    Toast.makeText(
+        contest,
+        "All field must be filled",
+        Toast.LENGTH_SHORT
+    ).show()
+}
+                else {
+    viewModel.createUserWithEmailAndPassword(email, password, name, phoneNumber) {
 
-                 navController.navigate(FlightScreens.HomeScreen.name)
-             }
+        navController.navigate(FlightScreens.HomeScreen.name)
+    }
+}
                                    },
                 text = "Create Account",
                 outline = true
-            )
+            )}
             Text(text="Already have an account ? Sign in",
                 style=MaterialTheme.typography.labelMedium.copy(
                     color = Color.Gray,
@@ -185,6 +207,11 @@ fun SignUpScreen(navController: NavController,
                     onClick = {navController.navigate(FlightScreens.LoginScreen.name)}
                 )
                 )
+
+            if (loginErr.isNotEmpty()) {
+                Toast.makeText(contest, loginErr, Toast.LENGTH_SHORT).show()
+            }
+
         }
     }
 

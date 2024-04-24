@@ -11,8 +11,8 @@ data class MUser(
       fun toMap(): MutableMap<String, Any> {
           return mutableMapOf(
               "user_id" to this.userId,
-              "name" to this.name,
-              "phone number" to this.phoneNumber,
+              "displayName" to this.name,
+              "phoneNumber" to this.phoneNumber,
               "email" to this.email,
 
           )

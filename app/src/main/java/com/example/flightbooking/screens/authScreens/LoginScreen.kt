@@ -1,6 +1,7 @@
 package com.example.flightbooking.screens.authScreens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -55,7 +58,10 @@ fun LoginScreen(
         mutableStateOf(false)
     }
 
-    var isLoading = viewModel.loading.value
+    val isLoading = viewModel.isLoading
+
+    var contest = LocalContext.current
+    var loginErr = viewModel.loginErr
 
 
     Column(
@@ -102,30 +108,43 @@ fun LoginScreen(
                 label = "Password",
                 icon = Icons.Filled.RemoveRedEye,
                 iconOnClick = { showPassword = !showPassword },
-                inputType = if(showPassword) VisualTransformation.None else PasswordVisualTransformation()
+                inputType = if (showPassword) VisualTransformation.None else PasswordVisualTransformation()
 //        placeHolder = "Password"
             )
 
-            CustomButton(
-                onClick = {
-                    /*TODO*/
+            if (isLoading) {
+                LinearProgressIndicator()
+            } else {
+                CustomButton(
+                    onClick = {
+                        /*TODO*/
 
-                    Log.d("login input", email + password)
-                    Log.d("login loading", isLoading.toString())
+                        Log.d("login input", email + password)
+                        Log.d("login loading", isLoading.toString())
+                        if (email.isEmpty() or password.isEmpty()) {
+                            Toast.makeText(
+                                contest,
+                                "password or email cannot be emoty",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+
+                            viewModel.signInWithEmailAndPassword(email, password) {
+                                navController.navigate(FlightScreens.HomeScreen.name)
+                            }
+                        }
 
 
-                    viewModel.signInWithEmailAndPassword(email, password) {
-                        navController.navigate(FlightScreens.HomeScreen.name)
-                    }
-
-
-                },
-                text = "Login",
-                color = Color.White,
-                textColor = PrimaryColor,
+                    },
+                    text = "Login",
+                    color = Color.White,
+                    textColor = PrimaryColor,
 //        modifier = Modifier.fillMaxWidth()
 
-            )
+                )
+            }
+
+
 
             Text(
                 text = "Forgotten password ? click here",
@@ -134,6 +153,10 @@ fun LoginScreen(
                 ),
                 modifier = Modifier.padding(vertical = 20.dp)
             )
+
+            if (loginErr.isNotEmpty()) {
+                Toast.makeText(contest, loginErr, Toast.LENGTH_SHORT).show()
+            }
 
         }
 

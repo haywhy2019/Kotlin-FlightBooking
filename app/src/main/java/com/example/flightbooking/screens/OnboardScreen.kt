@@ -32,10 +32,10 @@ import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun OnBoardScreen(navController: NavController){
-//    if(FirebaseAuth.getInstance().currentUser?.email?.isNotEmpty() == true){
-//        navController.navigate(FlightScreens.HomeScreen.name)
-//      Log.d("loggedUser", FirebaseAuth.getInstance().currentUser?.email.toString())
-//    }
+    if(FirebaseAuth.getInstance().currentUser?.email?.isNotEmpty() == true){
+        navController.navigate(FlightScreens.HomeScreen.name)
+      Log.d("loggedUser", FirebaseAuth.getInstance().currentUser?.email.toString())
+    }
     Column(verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.background(color = Color.White)
        ) {
