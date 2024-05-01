@@ -11,7 +11,8 @@ enum class FlightScreens {
     OnboardScreen,
     SignUpScreen,
     SplashScreen,
-    DetailScreen;
+    DetailScreen,
+    TicketScreen;
     companion object {
         fun fromRoute(route: String?): FlightScreens =
             when (route?.substringBefore("/")){
@@ -24,6 +25,7 @@ enum class FlightScreens {
                 OnboardScreen.name -> OnboardScreen
                 SignUpScreen.name -> SignUpScreen
                 SplashScreen.name -> SplashScreen
+                TicketScreen.name -> TicketScreen
             null -> HomeScreen
                 else -> throw IllegalArgumentException("Route $route is not found" )
             }

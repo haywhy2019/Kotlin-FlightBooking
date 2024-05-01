@@ -2,6 +2,7 @@ package com.example.flightbooking
 
 import android.graphics.drawable.PaintDrawable
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -19,20 +20,25 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.flightbooking.navigation.FlightNavigation
 import com.example.flightbooking.screens.SplashScreen
 import com.example.flightbooking.ui.theme.FlightBookingTheme
+import com.google.firebase.FirebaseApp
+import com.google.firebase.firestore.FirebaseFirestore
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
        installSplashScreen()
         setContent {
             FlightBookingTheme {
+
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-//                    Greeting("Android")
-//                   SplashScreen()
+
+
                     FlightNavigation()
                 }
             }
