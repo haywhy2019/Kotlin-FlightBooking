@@ -17,8 +17,13 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.withTimeoutOrNull
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
 @HiltViewModel
@@ -91,7 +96,8 @@ class HomeViewModel @Inject constructor(private val repository: FlightRepository
 
     }
     fun createTicket(
-        departure: String, arrival: String, destinationDate: String, arrivalDate: String
+        departure: String, arrival: String, destinationDate: String, arrivalDate: String,
+        type: String
     ) {
         isLoading = true
         val userId = Firebase.auth.currentUser?.uid
@@ -100,7 +106,8 @@ class HomeViewModel @Inject constructor(private val repository: FlightRepository
             departure,
             arrival,
             destinationDate,
-            arrivalDate
+            arrivalDate,
+            type
         ).toMap()
         FirebaseFirestore.getInstance()
             .collection("tickets")
@@ -110,15 +117,27 @@ class HomeViewModel @Inject constructor(private val repository: FlightRepository
                 Log.d("firbase s", "DocumentSnapshot successfully written!")
                 isLoading = false
                 message = "ticket booked successfully"
+
+
             }
             .addOnFailureListener { e ->
                 isLoading = false
                 message = "an error occured"
-                Log.w("firebase e", "Error writing document", e)
+                Log.d("firebase e", "Error writing document", e)
+
+            }. addOnCompleteListener {
+                CoroutineScope(Dispatchers.Main).launch {
+                    if(message.isNotEmpty()){
+                        delay(5000).run {
+                            message = ""
+                        }
+                    }
+
+                }
             }
 
-
     }
+
 }
 
 fun flightDataToDataObjects(fbData: List<Map<String, Any?>>?): List<Data> {

@@ -3,6 +3,7 @@ package com.example.flightbooking.screens.HomeScreen
 import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -51,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -73,6 +75,8 @@ import com.example.flightbooking.navigation.FlightScreens
 import com.example.flightbooking.ui.theme.PrimaryColor
 import com.example.flightbooking.utils.DateUtils
 import com.example.flightbooking.utils.test
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("ResourceAsColor")
@@ -85,30 +89,32 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     }
 
     val showDialog = remember { mutableStateOf(false) }
+    val showDialog2 = remember { mutableStateOf(false) }
 
     val showDateDialog = remember { mutableStateOf(false) }
 
     val showDateDialog2 = remember { mutableStateOf(false) }
 
-val localContest = LocalContext.current
+    val exitApp = remember { mutableStateOf(false) }
+
+    val localContest = LocalContext.current
     val dateState = rememberDatePickerState()
     val dateState2 = rememberDatePickerState()
     val deptDate = remember { mutableStateOf("pick date") }
     val arrivDate = remember { mutableStateOf("pick date") }
 
     val destination = remember { mutableStateOf("Choose take off") }
-    val destinationCode = remember { mutableStateOf( "DEPT") }
+    val destinationCode = remember { mutableStateOf("DEPT") }
 
     val arrival = remember { mutableStateOf("Choose Arrival location    ") }
     val arrivalCode = remember { mutableStateOf("ARV") }
 
 
-    val flightList:List<Data> = if(viewModel.listOfFlights.value.data != null) {
+    val flightList: List<Data> = if (viewModel.listOfFlights.value.data != null) {
         viewModel.listOfFlights.value.data!!
     } else {
         test
     }
-
 
 
     fun dateStateToString(dates: DatePickerState): String {
@@ -128,7 +134,7 @@ val localContest = LocalContext.current
     LaunchedEffect(Unit) { state.animateScrollTo(100) }
 //    val navController1: NavHostController = rememberNavController()
     viewModel.getFlights()
-
+    BackHandler(onBack = { exitApp.value = true })
     Scaffold(
         bottomBar = { BottomNavigation(navController) },
     ) { paddingValues ->
@@ -144,6 +150,7 @@ val localContest = LocalContext.current
                     shape = RoundedCornerShape(bottomStartPercent = 9, bottomEndPercent = 9)
                 )
         ) {
+            LogOutDialog(exitApp, navController)
             Column(
                 modifier = Modifier
                     .height(310.dp)
@@ -284,15 +291,15 @@ val localContest = LocalContext.current
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    FlightLocation(countryAb = destinationCode.value, country = destination.value ) {
+                    FlightLocation(countryAb = destinationCode.value, country = destination.value) {
                         showDialog.value = true
                     }
                     Icon(
                         painter = painterResource(id = R.drawable.destarrow),
                         contentDescription = ""
                     )
-                    FlightLocation(arrivalCode.value, arrival.value) {
-                        showDialog.value = true
+                    FlightLocation(countryAb = arrivalCode.value, country = arrival.value) {
+                        showDialog2.value = true
                     }
                 }
                 Row(
@@ -374,45 +381,67 @@ val localContest = LocalContext.current
                         .fillMaxWidth()
                         .padding(vertical = 40.dp)
                 ) {
-                    if(viewModel.isLoading) {
+                    if (viewModel.isLoading) {
                         LinearProgressIndicator()
-                    }else{
-                    CustomButton(
-                        onClick = {
-                            viewModel.createTicket(arrival.value,
-                            arrivDate.value,
-                            destination.value,
-                            deptDate.value,
-                            )
-                              arrival.value = "ARV"
-                            destination.value = "DST"
-                            arrivDate.value = ""
-                            deptDate.value = ""
+                    } else {
+                        CustomButton(
+                            onClick = {
+                                viewModel.createTicket(
+                                    arrival.value,
+                                    arrivDate.value,
+                                    destination.value,
+                                    deptDate.value,
+                                    typeOfFlight
+                                )
+                                arrival.value = "ARV"
+                                destination.value = "DST"
+                                arrivDate.value = ""
+                                deptDate.value = ""
 
-                                  },
-                        text = "Continue"
-                    )
-                }
+
+                            },
+                            text = "Continue"
+                        )
+                    }
                 }
 
             }
+            if (viewModel.message.isNotEmpty()) {
+                Toast.makeText(localContest, viewModel.message, Toast.LENGTH_SHORT).show()
 
-Toast.makeText(localContest, viewModel.message, Toast.LENGTH_SHORT).show()
-            MinimalDialog(onDismissRequest = { showDialog.value = false }, showDialog.value, flightList) {it ->
+            }
+
+
+
+            MinimalDialog(
+                onDismissRequest = { showDialog2.value = false },
+                showDialog2.value,
+                flightList
+            ) { it ->
                 run {
                     arrival.value = it.airport
                     arrivalCode.value = it.iata
                 }
             }
-            MinimalDialog(onDismissRequest = { showDialog.value = false }, showDialog.value, flightList) {it ->
+            MinimalDialog(
+                onDismissRequest = { showDialog.value = false },
+                showDialog.value,
+                flightList
+            ) { it ->
                 run {
                     destination.value = it.airport
                     destinationCode.value = it.iata
 
                 }
             }
-            DatePickerWithDialog(modifier = Modifier,showDateDialog, dateState) { deptDate.value = it }
-            DatePickerWithDialog(modifier = Modifier,showDateDialog2,dateState2) { arrivDate.value = it }
+            DatePickerWithDialog(modifier = Modifier, showDateDialog, dateState) {
+                deptDate.value = it
+            }
+            DatePickerWithDialog(
+                modifier = Modifier,
+                showDateDialog2,
+                dateState2
+            ) { arrivDate.value = it }
         }
 
 
@@ -420,9 +449,52 @@ Toast.makeText(localContest, viewModel.message, Toast.LENGTH_SHORT).show()
 
 }
 
+@Composable
+fun LogOutDialog(exitApp: MutableState<Boolean>, navController: NavController) {
+    if (exitApp.value) {
+        Dialog(onDismissRequest = { exitApp.value = false }) {
+            Card {
+                Text(
+                    text = "Do you want to exit the app", style = TextStyle(
+                        textAlign = TextAlign.Center
+                    ), modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(text = "Confirm", modifier = Modifier.clickable(onClick =
+                    {
+                        FirebaseAuth.getInstance().signOut().run {
+                            navController.navigate(FlightScreens.LoginScreen.name)
+                        }
+                    }
+
+
+                    ))
+                    Text(text = "Cancel", modifier = Modifier.clickable(onClick =
+                    { exitApp.value = false }
+
+
+                    ))
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
-fun MinimalDialog(onDismissRequest: () -> Unit, showDialog: Boolean, list: List<Data>,onPress: (Arrival) -> Unit) {
+fun MinimalDialog(
+    onDismissRequest: () -> Unit,
+    showDialog: Boolean,
+    list: List<Data>,
+    onPress: (Arrival) -> Unit
+) {
     if (showDialog) {
         Dialog(
             onDismissRequest = { onDismissRequest() },
@@ -441,7 +513,6 @@ fun MinimalDialog(onDismissRequest: () -> Unit, showDialog: Boolean, list: List<
 //                        Text(data.arrival.airport)
                         ListCard(flight = data, onDismissRequest) { onPress(data.arrival) }
                     }
-
 
 
                 }
@@ -501,7 +572,7 @@ fun DatePickerWithDialog(
                 }
             ) {
                 DatePicker(
-                    state =  dateState,
+                    state = dateState,
                     showModeToggle = true
                 )
             }
@@ -510,53 +581,62 @@ fun DatePickerWithDialog(
 }
 
 @Composable
-fun ListCard(flight: Data = Data(
-    arrival = Arrival(
-        "Wallis Island",
-        "WLS",
-    ),
-    departure = Departure(
-        "Nadi International",
-        "NAN"
-    ),
-    flight_date = "2024-04-21",
-    flight_status = "scheduled"
-    ), onDismissRequest: () -> Unit = {}, onPress: (Arrival) -> Unit = {}) {
-   Card(shape = RoundedCornerShape(5.dp),
-       elevation = CardDefaults.elevatedCardElevation(
-           defaultElevation = 5.dp
-       ),
-       modifier = Modifier
-           .padding(5.dp)
-           .height(100.dp)
-           .fillMaxWidth()
-           .clickable {
-               onDismissRequest()
-               onPress(flight.arrival)
+fun ListCard(
+    flight: Data = Data(
+        arrival = Arrival(
+            "Wallis Island",
+            "WLS",
+        ),
+        departure = Departure(
+            "Nadi International",
+            "NAN"
+        ),
+        flight_date = "2024-04-21",
+        flight_status = "scheduled"
+    ), onDismissRequest: () -> Unit = {}, onPress: (Arrival) -> Unit = {}
+) {
+    Card(shape = RoundedCornerShape(5.dp),
+        elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = 5.dp
+        ),
+        modifier = Modifier
+            .padding(5.dp)
+            .height(100.dp)
+            .fillMaxWidth()
+            .clickable {
+                onDismissRequest()
+                onPress(flight.arrival)
 
 
-           }
-       ) {
+            }
+    ) {
 
-       Column(
-           verticalArrangement = Arrangement.Center,
-           modifier = Modifier.padding(top = 15.dp)
-       ) {
-           Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround){
-               Text("Airport:", style=MaterialTheme.typography.labelMedium)
-               Text(text = flight.arrival.airport, style=MaterialTheme.typography.labelLarge.copy(
-                   color = PrimaryColor,
-                   fontWeight = FontWeight.Bold
-               ))
-           }
+        Column(
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(top = 15.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Text("Airport:", style = MaterialTheme.typography.labelMedium)
+                Text(
+                    text = flight.arrival.airport, style = MaterialTheme.typography.labelLarge.copy(
+                        color = PrimaryColor,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
 
-           Row(modifier = Modifier.fillMaxWidth(),
-               horizontalArrangement = Arrangement.SpaceAround){
-               Text(text = "Code:")
-               Text(flight.arrival.iata)
-           }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Text(text = "Code:")
+                Text(flight.arrival.iata)
+            }
 
-       }
-   }
+        }
+    }
 }
 

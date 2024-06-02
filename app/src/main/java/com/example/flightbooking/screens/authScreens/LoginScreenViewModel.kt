@@ -15,6 +15,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -43,7 +44,14 @@ class LoginScreenViewModel : ViewModel() {
                 }.addOnFailureListener { result ->
                     Log.d("FB", "signin bad : ${result.message}")
                     loginErr = result.message.toString()
+
                 }
+            if(loginErr.isNotEmpty()) {
+                delay(5000).run {
+                    loginErr = ""
+                }
+            }
+
         }
 
     fun createUserWithEmailAndPassword(
