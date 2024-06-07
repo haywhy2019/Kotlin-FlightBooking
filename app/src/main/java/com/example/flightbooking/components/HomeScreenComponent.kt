@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.flightbooking.ui.theme.PrimaryColor
 
@@ -30,9 +31,13 @@ fun FlightLocation(countryAb: String, country: String, onClick: () -> Unit) {
         modifier = Modifier.clickable{onClick()}
     ) {
         Text(
-            text = countryAb, style = MaterialTheme.typography.titleLarge
+            text = countryAb, style = MaterialTheme.typography.titleLarge.copy(
+                textAlign = TextAlign.Center
+            )
         )
-        Text(text = country, style = MaterialTheme.typography.labelMedium,
+        Text(text = country, style = MaterialTheme.typography.labelMedium.copy(
+            textAlign = TextAlign.Center
+        ),
             modifier = Modifier.padding(horizontal = 10.dp)
                 .width(100.dp)
 

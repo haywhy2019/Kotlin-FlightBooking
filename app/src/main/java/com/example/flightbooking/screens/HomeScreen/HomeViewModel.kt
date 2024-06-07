@@ -133,6 +133,8 @@ class HomeViewModel @Inject constructor(private val repository: FlightRepository
                         }
                     }
 
+                    // Delay for 1000 milliseconds
+                    // Any additional code to run after delay
                 }
             }
 

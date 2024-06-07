@@ -10,7 +10,7 @@ import com.example.flightbooking.screens.HomeScreen.HomeScreen
 import com.example.flightbooking.screens.HotelScreen
 import com.example.flightbooking.screens.authScreens.LoginScreen
 import com.example.flightbooking.screens.OnBoardScreen
-import com.example.flightbooking.screens.TicketScreen
+import com.example.flightbooking.screens.TicketScreen.TicketScreen
 import com.example.flightbooking.screens.authScreens.SignUpScreen
 
 @Composable

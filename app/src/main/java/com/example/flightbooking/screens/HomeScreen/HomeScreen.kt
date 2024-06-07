@@ -106,7 +106,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     val destination = remember { mutableStateOf("Choose take off") }
     val destinationCode = remember { mutableStateOf("DEPT") }
 
-    val arrival = remember { mutableStateOf("Choose Arrival location    ") }
+    val arrival = remember { mutableStateOf("Choose Arrival location") }
     val arrivalCode = remember { mutableStateOf("ARV") }
 
 
@@ -387,11 +387,11 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         CustomButton(
                             onClick = {
                                 viewModel.createTicket(
-                                    arrival.value,
-                                    arrivDate.value,
-                                    destination.value,
-                                    deptDate.value,
-                                    typeOfFlight
+                                    arrival = arrival.value,
+                                    arrivalDate = arrivDate.value,
+                                    departure = destination.value,
+                                    destinationDate = deptDate.value,
+                                    type = typeOfFlight
                                 )
                                 arrival.value = "ARV"
                                 destination.value = "DST"
